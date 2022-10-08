@@ -19,12 +19,30 @@
   services.nextcloud = {                
     enable = true;                   
     package = pkgs.nextcloud24;
-    hostName = "nextcloud.storage.romeov.me";
+    hostName = "storage.romeov.me";
+    # hostName = "100.81.212.108";
     https = true;
     config.adminpassFile = "/home/nextcloud_admin_pass";
     home="/storage";
   };
   networking.firewall.allowedTCPPorts = [ 80 443 ];
+
+  services.nginx = {
+    enable = true;
+    # Setup Nextcloud virtual host to listen on ports
+    virtualHosts = {
+      "storage.romeov.me" = {
+        ## Force HTTP redirect to HTTPS
+        forceSSL = true;
+        ## LetsEncrypt
+        enableACME = true;
+      };
+    };
+  };
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "contact@romeov.me";
+  };
 
   services.tailscale.enable = true;
 
