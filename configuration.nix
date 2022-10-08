@@ -24,6 +24,7 @@
     config.adminpassFile = "/home/nextcloud_admin_pass";
     home="/storage";
   };
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.tailscale.enable = true;
 
