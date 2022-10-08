@@ -5,6 +5,7 @@
   environment.systemPackages = [
     pkgs.vim
     pkgs.git
+    pkgs.tailscale
   ];
 
   boot.cleanTmpDir = true;
@@ -18,10 +19,13 @@
   services.nextcloud = {                
     enable = true;                   
     package = pkgs.nextcloud24;
-    hostName = "localhost";
-    config.adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
+    hostName = "nextcloud.storage.romeov.me";
+    https = true;
+    config.adminpassFile = "/home/nextcloud_admin_pass";
     home="/storage";
   };
+
+  services.tailscale.enable = true;
 
   fileSystems."/storage" =
     { device = "/dev/disk/by-id/scsi-0HC_Volume_23527885";
