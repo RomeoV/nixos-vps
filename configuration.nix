@@ -2,14 +2,15 @@
   imports = [
     ./hardware-configuration.nix
   ];
+
   environment.systemPackages = [
     pkgs.vim
     pkgs.git
-    pkgs.tailscale
   ];
 
   boot.cleanTmpDir = true;
   zramSwap.enable = true;
+
   networking.hostName = "mycloud-nixos";
   services.openssh.enable = true;
   users.users.root.openssh.authorizedKeys.keys = [
@@ -20,16 +21,16 @@
     enable = true;                   
     package = pkgs.nextcloud24;
     hostName = "storage.romeov.me";
-    # hostName = "100.81.212.108";
     https = true;
     config.adminpassFile = "/home/nextcloud_admin_pass";
     home="/storage";
   };
+  # we need these ports for nextcloud
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
+  # Use nginx and ACME (Let's encrypt) to enable https
   services.nginx = {
     enable = true;
-    # Setup Nextcloud virtual host to listen on ports
     virtualHosts = {
       "storage.romeov.me" = {
         ## Force HTTP redirect to HTTPS
@@ -44,8 +45,7 @@
     defaults.email = "contact@romeov.me";
   };
 
-  services.tailscale.enable = true;
-
+  # mount hetzner volume
   fileSystems."/storage" =
     { device = "/dev/disk/by-id/scsi-0HC_Volume_23527885";
       fsType = "ext4";
