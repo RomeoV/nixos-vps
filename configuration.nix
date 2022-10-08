@@ -50,4 +50,16 @@
     { device = "/dev/disk/by-id/scsi-0HC_Volume_23527885";
       fsType = "ext4";
     };
+
+  # set up ipv6
+  networking = {
+    interfaces.enp1s0.ipv6.addresses = [{
+      address = "2a01:4ff:f0:e2df::";
+      prefixLength = 64;
+    }];
+    defaultGateway6 = {
+      address = "fe80::1";
+      interface = "enp1s0";
+    };
+  };
 }
