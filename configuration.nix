@@ -25,12 +25,16 @@
     config.adminpassFile = "/home/nextcloud_admin_pass";
     home="/storage";
   };
-  # we need these ports for nextcloud
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+
+  # we need these ports for nextcloud and libreddit
+  # open https only(!) (443, but not 80)
+  networking.firewall.allowedTCPPorts = [ 443];
 
   # Use nginx and ACME (Let's encrypt) to enable https
   services.nginx = {
     enable = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
     virtualHosts = {
       "storage.romeov.me" = {
         ## Force HTTP redirect to HTTPS
