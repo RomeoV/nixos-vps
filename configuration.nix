@@ -26,6 +26,12 @@
     home="/storage";
   };
 
+  services.libreddit = {
+    enable = true;
+    address = "127.0.0.1";
+    port = 8081;
+  };
+
   # we need these ports for nextcloud and libreddit
   # open https only(!) (443, but not 80)
   networking.firewall.allowedTCPPorts = [ 443];
@@ -41,6 +47,15 @@
         forceSSL = true;
         ## LetsEncrypt
         enableACME = true;
+      };
+      "libreddit.romeov.me" = {
+        ## Force HTTP redirect to HTTPS
+        forceSSL = true;
+        ## LetsEncrypt
+        enableACME = true;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:8081";
+        };
       };
     };
   };
