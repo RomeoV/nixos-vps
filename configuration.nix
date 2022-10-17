@@ -32,6 +32,21 @@
     port = 8081;
   };
 
+  services.nitter = {
+    enable = true;
+    server = {
+      port = 8082;
+      https = true;
+      hostname = "nitter.romeov.me";
+    };
+    preferences = {
+      replaceTwitter = "nitter.romeov.me";
+      hlsPlayback = true;
+      muteVideos = true;
+      hideTweetStats = true;
+    };
+  };
+
   # we need these ports for nextcloud and libreddit
   # open https only(!) (443, but not 80)
   networking.firewall.allowedTCPPorts = [ 443];
@@ -55,6 +70,15 @@
         enableACME = true;
         locations."/" = {
           proxyPass = "http://127.0.0.1:8081";
+        };
+      };
+      "nitter.romeov.me" = {
+        ## Force HTTP redirect to HTTPS
+        forceSSL = true;
+        ## LetsEncrypt
+        enableACME = true;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:8082";
         };
       };
     };
