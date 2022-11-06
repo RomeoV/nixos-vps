@@ -10,7 +10,6 @@
 
   boot.cleanTmpDir = true;
   zramSwap.enable = true;
-  users.mutableUsers = true;
 
   networking.hostName = "mycloud-nixos";
   services.openssh.enable = true;
@@ -53,20 +52,12 @@
   services.mastodon = {
     enable = true;
     localDomain = "social.romeov.me";
-    smtp = {
-      createLocally = false;
-      host = "smtp.fastmail.com";
-      port = 465;
-      user = "romeo@romeov.me";
-      authenticate = true;
-      fromAddress = "notifications@romeov.me";
-    };
     configureNginx = true;
   };
 
   # we need these ports for nextcloud and libreddit
   # open https only(!) (443, but not 80)
-  networking.firewall.allowedTCPPorts = [ 80 443 465];
+  networking.firewall.allowedTCPPorts = [ 443 ];
 
   # Use nginx and ACME (Let's encrypt) to enable https
   services.nginx = {
@@ -98,17 +89,6 @@
           proxyPass = "http://127.0.0.1:8082";
         };
       };
-      # "social.romeov.me" = {
-      #   root = "social.romeov.me/public/";
-      #   locations."/system/".alias = "/var/lib/mastodon/public-system/";
-      #   ## Force HTTP redirect to HTTPS
-      #   forceSSL = true;
-      #   ## LetsEncrypt
-      #   enableACME = true;
-      #   locations."/" = {
-      #     proxyPass = "http://127.0.0.1:55001";
-      #   };
-      # };
     };
   };
   security.acme = {
