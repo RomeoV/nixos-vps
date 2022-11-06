@@ -29,7 +29,7 @@
     hostName = "storage.romeov.me";
     https = true;
     config.adminpassFile = "/home/nextcloud_admin_pass";
-    home="/storage";
+    home="/storage/nextcloud";
   };
 
   services.libreddit = {
@@ -57,6 +57,7 @@
     enable = true;
     localDomain = "social.romeov.me";
     configureNginx = true;
+    smtp.fromAddress = "notifications@romeov.me";
   };
 
   # we need these ports for nextcloud and libreddit
