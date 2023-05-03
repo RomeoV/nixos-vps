@@ -1,6 +1,7 @@
 { config, pkgs, ...}: {
   imports = [
     ./hardware-configuration.nix
+    <agenix/modules/age.nix>  # requires `nix-channel --add https://github.com/ryantm/agenix/archive/main.tar.gz agenix`
   ];
 
   nix.settings.auto-optimise-store = true;
@@ -16,7 +17,8 @@
     };
   };
   environment.systemPackages = [
-      pkgs.helix = true;
+      (pkgs.callPackage <agenix/pkgs/agenix.nix> {})
+      pkgs.helix
   ];
 
   boot.tmp.cleanOnBoot = true;
@@ -29,6 +31,13 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEcP5JDW+JKSD04YGd+giu8oGCVGKjh7ZSap0UbNUYhP JuiceSSH"
   ];
 
+  age.secrets = {
+    nextcloud_admin_pass = {
+      file = ./nextcloud_admin_pass.age;
+      owner = "nextcloud";
+    };
+  };
+
   # Hosts something similar to a TOR proxy
   services.snowflake-proxy = {
     enable = true;
@@ -39,7 +48,7 @@
     package = pkgs.nextcloud26;
     hostName = "storage.romeov.me";
     https = true;
-    config.adminpassFile = "/home/nextcloud_admin_pass";
+    config.adminpassFile = config.age.secrets.nextcloud_admin_pass.path;
     home="/storage/nextcloud";
   };
 
@@ -76,6 +85,7 @@
     enable = true;
     localDomain = "social.romeov.me";
     configureNginx = true;
+    smtp.fromAddress = "";
     mediaAutoRemove.olderThanDays = 7;
   };
 
