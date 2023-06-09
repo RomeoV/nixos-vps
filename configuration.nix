@@ -82,7 +82,7 @@
   # The email setup doesn't work.
   # Currently, new users can be accepted via the mastodon cli.
   services.mastodon = {
-    enable = true;
+    enable = false;
     localDomain = "social.romeov.me";
     configureNginx = true;
     smtp.fromAddress = "";
