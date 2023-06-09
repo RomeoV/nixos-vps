@@ -19,6 +19,7 @@
   environment.systemPackages = [
       (pkgs.callPackage <agenix/pkgs/agenix.nix> {})
       pkgs.helix
+      pkgs.headscale
   ];
 
   boot.tmp.cleanOnBoot = true;
@@ -117,14 +118,47 @@
   };
   
   services.headscale = {
-    enable = false;
+    enable = true;
     port = 8083;
-    # serverUrl = "https://headscale.romeov.me";
+    settings = {
+      serverUrl = "https://headscale.romeov.me";
+      dns_config = { baseDomain = "romeov.me"; };
+      # logtail.enabled = false; 
+    };
+  };
+
+  services.tailscale = {
+    enable = true;
   };
 
   # we need these ports for nextcloud and libreddit
   # open http and https
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [ 
+    80 
+    443    
+    config.services.grafana.settings.server.http_port 
+  ];
+
+  services.blocky = {
+    enable = false;
+    settings = {
+      upstream.default = [ "100.100.100.100" "8.8.8.8" "1.1.1.1" ];
+    };
+  };
+
+  services.grafana = {
+    enable = true;
+    settings.server = {
+      domain = "grafana.romeov.me";
+      # domain = "localhost";
+      http_addr = "127.0.0.1";
+      http_port = 2342;
+    };
+  };
+  services.prometheus = {
+    enable = true;
+    port = 9001;
+  };
 
   # Use nginx and ACME (Let's encrypt) to enable https
   services.nginx = {
@@ -163,10 +197,30 @@
          enableACME = true;
          locations."/" = {
            proxyPass = "http://127.0.0.1:8083";
+	   proxyWebsockets = true;
          };
+      };
+      ${config.services.grafana.settings.server.domain} = {
+        addSSL = true;
+	enableACME = true;
+        locations."/" = {
+          proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
+          proxyWebsockets = true;
+	  extraConfig =
+            # required when the server wants to use HTTP Authentication
+            "proxy_pass_header Authorization;"
+	    ;
+        };
       };
     };
   };
+
+  networking.firewall = {
+    # checkReversePath = "loose";
+    trustedInterfaces = [ "tailscale0" ];
+    allowedUDPPorts = [ config.services.tailscale.port ];
+  };
+
   security.acme = {
     acceptTerms = true;
     defaults.email = "contact@romeov.me";
@@ -190,5 +244,11 @@
       address = "fe80::1";
       interface = "enp1s0";
     };
+    # enable headscale magicDNS
+    # see here: https://tailscale.com/kb/1063/install-nixos/#using-magicdns
+    nameservers = [ "100.100.100.100" "8.8.8.8" "1.1.1.1" ];
+    search = [ "headscale.romeov.me" ];
   };
+
+  # systemd.network.enable = true;
 }
